@@ -18,7 +18,7 @@
 - We propose a novel Fusion of Multiscale Features via Centralized Sparse-attention Network (EEG-CSANet), which effectively addresses the loss of channel discriminative information caused by coarse-grained feature fusion in the traditional multiscale temporal feature integration process.
 - We propose a feature fusion architecture that synergistically integrates a primary branch with an auxiliary branch. The primary branch employs a multi-scale multi-head self-attention
 mechanism to enhance the modeling of core spatiotemporal patterns, while the auxiliary branch leverages a multi-scale sparse multi-head cross-attention mechanism to enable efficient and precise feature interactions with the local key regions of the primary branch.
-- We conduct experiments on five public datasets (BCIC-IV-2a, BCIC-IV-2b, HGD, SEED, and SEED-VIG), and the results demonstrate that our method consistently achieves superior classification accuracy and generalization performance compared to existing approaches, thereby validating its effectiveness and robustness.
+- We conduct experiments on five public datasets (BCIC-IV-2a, BCIC-IV-2b, HGD, SEED, and SEED-VIG), and the results demonstrate that our method consistently achieves superior classification accuracy and generalization performance compared to existing approaches, thereby validating its effectiveness and robustness.
 
 ## Datasets
 - **[BCIC-IV-2A](https://www.bbci.de/competition/iv/)**  
