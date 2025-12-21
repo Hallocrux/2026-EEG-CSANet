@@ -16,11 +16,11 @@
 ![Modle](/Figure/Model.png)
 
 ## Datasets
-- **BCIC-IV-2A**  
-- **BCIC-IV-2B**  
-- **HGD**  
-- **SEED**  
-- **SEED-VIG**
+- **[BCIC-IV-2A](https://www.bbci.de/competition/iv/)**  
+- **[BCIC-IV-2B](https://www.bbci.de/competition/iv/)**  
+- **[HGD](https://gin.g-node.org/robintibor/high-gamma-dataset)**  
+- **[SEED](https://bcmi.sjtu.edu.cn/home/seed/seed.html)**  
+- **[SEED-VIG](https://bcmi.sjtu.edu.cn/home/seed/seed-vig.html)**
 
 ## Acknowledge
 We would like to express our sincere gratitude to the following open-source projects that have contributed to this work:
