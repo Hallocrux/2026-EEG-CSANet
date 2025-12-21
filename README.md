@@ -57,6 +57,10 @@ EEG-CSANet/
 └── utils.py         # Some additional utility scripts.
 ```
 
+## Visualizations
+
+![Visualizations](/Figure/Visualization.png)
+
 ## Acknowledge
 
 We would like to express our sincere gratitude to the following open-source projects that have contributed to this work:
