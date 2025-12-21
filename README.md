@@ -53,8 +53,8 @@ EEG-CSANet/
 ├── data/            # Data preprocessing code for different datasets.
 ├── model/           # Training models for different datasets are highly consistent in architecture and hyperparameters, except for the channel configuration.
 ├── output/          # Publicly released weights for different datasets, with results all obtained under seed=0.
-├── train_*.py       # Training code for different datasets.
-└── utils/           # Some additional utility scripts
+├── train_**.py      # Training code for different datasets.
+└── utils/           # Some additional utility scripts.
 ```
 
 ## Acknowledge
