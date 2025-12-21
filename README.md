@@ -16,9 +16,18 @@
 ![Modle](/Figure/Model.png)
 
 ## Datasets
+• **BCIC-IV-2A**  
+• **BCIC-IV-2B**  
+• **HGD**  
+• **SEED**  
+• **SEED-VIG**
+
+## Acknowledge
+We would like to express our sincere gratitude to the following open-source projects that have contributed to this work:
+https://github.com/Ma-Xinzhi/EEG-TransNet
+https://github.com/eeyhsong/EEG-Conformer
 
 ## References
-
 This paper is currently under submission.
 
 If you have any questions regarding our manuscript or the associated code, please feel free to contact us at:  
