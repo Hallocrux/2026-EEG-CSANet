@@ -22,6 +22,12 @@
 - **[SEED](https://bcmi.sjtu.edu.cn/home/seed/seed.html)**  
 - **[SEED-VIG](https://bcmi.sjtu.edu.cn/home/seed/seed-vig.html)**
 
+## Results
+![Result_1](/Figure/Result_1.png)
+![Result_2](/Figure/Result_2.png)
+![Result_3](/Figure/Result_3.png)
+![Result_4](/Figure/Result_4.png)
+
 ## Acknowledge
 We would like to express our sincere gratitude to the following open-source projects that have contributed to this work:
 - https://github.com/Ma-Xinzhi/EEG-TransNet
