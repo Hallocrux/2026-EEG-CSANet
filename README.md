@@ -36,6 +36,20 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
 
 </div>
 
+## Requirements
+numpy==1.23.5
+numba==0.60.0
+opencv-python==4.10.0.84
+einops==0.8.1
+
+## Code Structure
+- config   # Configuration files for different datasets.
+- data   # Data preprocessing code for different datasets.
+- model   # Training models for different datasets are highly consistent in architecture and hyperparameters, except for the channel configuration.
+- output   # Publicly released weights for different datasets, with results all obtained under seed=0.
+- train_**   # Training code for different datasets.
+- utils   # Some additional utility scripts
+
 ## Acknowledge
 We would like to express our sincere gratitude to the following open-source projects that have contributed to this work:
 - https://github.com/Ma-Xinzhi/EEG-TransNet
