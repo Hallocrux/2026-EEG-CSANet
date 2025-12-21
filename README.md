@@ -30,10 +30,10 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
 ## Results
 <div align="center">
   
-<img src="/Figure/Result_1.png" alt="Result_1" width="800"/>
-<img src="/Figure/Result_2.png" alt="Result_2" width="800"/>
+<img src="/Figure/Result_1.png" alt="Result_1" width="840"/>
+<img src="/Figure/Result_2.png" alt="Result_2" width="840"/>
 <img src="/Figure/Result_3.png" alt="Result_3" width="420"/>
-<img src="/Figure/Result_4.png" alt="Result_4" width="800"/>
+<img src="/Figure/Result_4.png" alt="Result_4" width="840"/>
 
 </div>
 
