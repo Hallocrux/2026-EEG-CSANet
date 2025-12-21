@@ -32,7 +32,7 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
   
 ![Result_1](/Figure/Result_1.png)
 ![Result_2](/Figure/Result_2.png)
-<img src="/Figure/Result_3.png" alt="Result_3" width="400"/>
+<img src="/Figure/Result_3.png" alt="Result_3" width="450"/>
 ![Result_4](/Figure/Result_4.png)
 
 </div>
