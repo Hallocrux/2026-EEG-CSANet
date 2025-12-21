@@ -1,6 +1,7 @@
 <div align="center">
 
-# 🧠 EEG-CSANet: Fusion of Multiscale Features via Centralized Sparse-Attention Network for EEG Decoding
+# EEG-CSANet
+# 🧠 Fusion of Multiscale Features via Centralized Sparse-Attention Network for EEG Decoding
 
 👥 **Authors**: Xiangrui Cai<sup>1</sup>, Shaocheng Ma<sup>1</sup>, Lei Cao*, Jie Li*, Tianyu Liu*, and Yiling Dong.  
 🏫 **Affiliations**: Shanghai Maritime University & Tongji University  
