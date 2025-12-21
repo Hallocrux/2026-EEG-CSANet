@@ -1,0 +1,23 @@
+# Model(classes change according to dataset)
+network: CSANet
+network_args:
+  classes: 4
+
+# Data (use self processed data path)
+data_path: /mnt/cxr/CSANet/2a
+out_folder: /mnt/cxr/CSANet/output/2a
+
+# Training
+preferred_device: gpu
+nGPU: 0
+random_seed: 0
+
+batch_size: 64
+
+epochs: 2000
+
+lr: 0.0009
+
+# Data augmentation
+num_classes: 4
+num_segs: 8

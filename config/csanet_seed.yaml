@@ -1,0 +1,23 @@
+# Model(classes change according to dataset)
+network: CSANet
+network_args:
+  classes: 3
+
+# Data (use self processed data path)
+data_path: /mnt/cxr/CSANet/SEED
+out_folder: /mnt/cxr/CSANet/output/SEED
+
+# Training
+preferred_device: gpu
+nGPU: 0
+random_seed: 0
+
+batch_size: 128
+
+epochs: 1000
+
+lr: 0.0009
+
+# Data augmentation // no Data augmentation
+num_classes: 3
+num_segs: 4
