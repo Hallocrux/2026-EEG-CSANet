@@ -43,7 +43,7 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
 - einops==0.8.1
 
 ## Code Structure
-project/
+EEG-CSANet/
 ├── config/          # Configuration files for different datasets.
 ├── data/            # Data preprocessing code for different datasets.
 ├── model/           # Training models for different datasets are highly consistent in architecture and hyperparameters, except for the channel configuration.
