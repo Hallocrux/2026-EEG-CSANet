@@ -20,6 +20,7 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
 - We conduct experiments on five public datasets (BCIC-IV-2a, BCIC-IV-2b, HGD, SEED, and SEED-VIG), and the results demonstrate that our method consistently achieves superior classification accuracy and generalization performance compared to existing approaches, thereby validating its effectiveness and robustness.
 
 ## Datasets
+
 - **[BCIC-IV-2A](https://www.bbci.de/competition/iv/)**  
 - **[BCIC-IV-2B](https://www.bbci.de/competition/iv/)**  
 - **[HGD](https://gin.g-node.org/robintibor/high-gamma-dataset)**  
@@ -27,6 +28,7 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
 - **[SEED-VIG](https://bcmi.sjtu.edu.cn/home/seed/seed-vig.html)**
 
 ## Results
+
 <div align="center">
   
 <img src="/Figure/Result_1.png" alt="Result_1" width="840"/>
@@ -37,26 +39,30 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
 </div>
 
 ## Requirements
+
 - numpy==1.23.5
 - numba==0.60.0
 - opencv-python==4.10.0.84
 - einops==0.8.1
 
 ## Code Structure
+
 EEG-CSANet/
 ├── config/          # Configuration files for different datasets.
 ├── data/            # Data preprocessing code for different datasets.
 ├── model/           # Training models for different datasets are highly consistent in architecture and hyperparameters, except for the channel configuration.
 ├── output/          # Publicly released weights for different datasets, with results all obtained under seed=0.
 ├── train_*.py       # Training code for different datasets.
-└── utils/           # Some additional utility scripts
+└── utils/           # Some additional utility scripts.
 
 ## Acknowledge
+
 We would like to express our sincere gratitude to the following open-source projects that have contributed to this work:
 - https://github.com/Ma-Xinzhi/EEG-TransNet
 - https://github.com/eeyhsong/EEG-Conformer
 
 ## References
+
 This paper is currently under submission.
 
 If you have any questions regarding our manuscript or the associated code, please feel free to contact us at:  
