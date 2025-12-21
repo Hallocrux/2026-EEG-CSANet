@@ -12,7 +12,6 @@
 
 </div>
 
-## Model
 ![Modle](/Figure/Model.png)
 
 - We propose a novel Fusion of Multiscale Features via Centralized Sparse-attention Network (EEG-CSANet), which effectively addresses the loss of channel discriminative information caused by coarse-grained feature fusion in the traditional multiscale temporal feature integration process.
