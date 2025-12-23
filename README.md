@@ -8,7 +8,7 @@
 
 🏫 **Affiliations**: Shanghai Maritime University & Tongji University  
 
-[![Paper](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b.svg?logo=arxiv)](https://arxiv.org/abs/XXXX.XXXXX)
+[![Paper]](https://arxiv.org/abs/2512.18689)
 
 </div>
 
