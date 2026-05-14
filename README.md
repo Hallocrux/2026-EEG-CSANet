@@ -38,6 +38,9 @@ mechanism to enhance the modeling of core spatiotemporal patterns, while the aux
 
 </div>
 
+## News
+The code has been updated! 🚀 Training speed is now 5x faster or even more! ⚡🔥
+
 ## Requirements
 
 - numpy==1.23.5
