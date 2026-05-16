@@ -1,26 +1,26 @@
-import numpy as np
-import random
-import scipy.signal as signal
-import scipy.io as io
 import os
-import resampy
+import random
+
+import numpy as np
+
 
 def load_BCI42_data(dataset_path, data_file):
-    data_path = os.path.join(dataset_path, data_file + '_data.npy')
-    label_path = os.path.join(dataset_path, data_file + '_label.npy')
+    data_path = os.path.join(dataset_path, data_file + "_data.npy")
+    label_path = os.path.join(dataset_path, data_file + "_label.npy")
 
     data = np.load(data_path)
-    label = np.load(label_path).squeeze()-1
+    label = np.load(label_path).squeeze() - 1
 
-    print(data_file, 'load success')
+    print(data_file, "load success")
 
-    #Shuffle
+    # Shuffle
     data, label = shuffle_data(data, label)
 
-    print('Data shape: ', data.shape)
-    print('Label shape: ', label.shape)
+    print("Data shape: ", data.shape)
+    print("Label shape: ", label.shape)
 
     return data, label
+
 
 def load_HGD_data(dataset_path, data_file, label_file):
     data = []
@@ -31,19 +31,20 @@ def load_HGD_data(dataset_path, data_file, label_file):
     data = np.load(data_path)
     label = np.load(label_path).squeeze()
 
-    print(data_file, 'load success')
+    print(data_file, "load success")
 
-    #Shuffle
+    # Shuffle
     data, label = shuffle_data(data, label)
 
-    print('Data shape: ', data.shape)
-    print('Label shape: ', label.shape)
+    print("Data shape: ", data.shape)
+    print("Label shape: ", label.shape)
 
     return data, label
 
+
 def load_SEED_5_fold(root, nSub, fold):
-    all_data = np.load(root + 'S%d_session1.npy' % nSub, allow_pickle=True)
-    all_label = np.load(root + 'S%d_session1_label.npy' % nSub, allow_pickle=True)
+    all_data = np.load(root + "S%d_session1.npy" % nSub, allow_pickle=True)
+    all_label = np.load(root + "S%d_session1_label.npy" % nSub, allow_pickle=True)
 
     train_data = []
     train_label = []
@@ -98,6 +99,7 @@ def load_SEED_5_fold(root, nSub, fold):
     test_data = (test_data - mean) / std
 
     return train_data, train_label, test_data, test_label
+
 
 def shuffle_data(data, label):
     index = [i for i in range(len(data))]

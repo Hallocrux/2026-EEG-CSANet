@@ -1,15 +1,14 @@
-from sys import path
 import cv2
-import os
-import torch
 import numpy as np
+
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
+
 class ActivationsAndGradients:
-    """ Class for extracting activations and
-    registering gradients from targeted intermediate layers """
+    """Class for extracting activations and
+    registering gradients from targeted intermediate layers"""
 
     def __init__(self, model, target_layers, reshape_transform):
         self.model = model
@@ -19,17 +18,17 @@ class ActivationsAndGradients:
         self.handles = []
         for target_layer in target_layers:
             self.handles.append(
-                target_layer.register_forward_hook(
-                    self.save_activation))
+                target_layer.register_forward_hook(self.save_activation)
+            )
             # Backward compatibility with older pytorch versions:
-            if hasattr(target_layer, 'register_full_backward_hook'):
+            if hasattr(target_layer, "register_full_backward_hook"):
                 self.handles.append(
-                    target_layer.register_full_backward_hook(
-                        self.save_gradient))
+                    target_layer.register_full_backward_hook(self.save_gradient)
+                )
             else:
                 self.handles.append(
-                    target_layer.register_backward_hook(
-                        self.save_gradient))
+                    target_layer.register_backward_hook(self.save_gradient)
+                )
 
     def save_activation(self, module, input, output):
         activation = output
@@ -55,11 +54,7 @@ class ActivationsAndGradients:
 
 
 class GradCAM:
-    def __init__(self,
-                 model,
-                 target_layers,
-                 reshape_transform=None,
-                 use_cuda=False):
+    def __init__(self, model, target_layers, reshape_transform=None, use_cuda=False):
         self.model = model.eval()
         self.target_layers = target_layers
         self.reshape_transform = reshape_transform
@@ -67,7 +62,8 @@ class GradCAM:
         if self.cuda:
             self.model = model.cuda()
         self.activations_and_grads = ActivationsAndGradients(
-            self.model, target_layers, reshape_transform)
+            self.model, target_layers, reshape_transform
+        )
 
     """ Get a vector of weights for every channel in the target layer.
         Methods that return weights channels,
@@ -97,10 +93,12 @@ class GradCAM:
         return width, height
 
     def compute_cam_per_layer(self, input_tensor):
-        activations_list = [a.cpu().data.numpy()
-                            for a in self.activations_and_grads.activations]
-        grads_list = [g.cpu().data.numpy()
-                      for g in self.activations_and_grads.gradients]
+        activations_list = [
+            a.cpu().data.numpy() for a in self.activations_and_grads.activations
+        ]
+        grads_list = [
+            g.cpu().data.numpy() for g in self.activations_and_grads.gradients
+        ]
         target_size = self.get_target_width_height(input_tensor)
 
         cam_per_target_layer = []
@@ -108,7 +106,9 @@ class GradCAM:
 
         for layer_activations, layer_grads in zip(activations_list, grads_list):
             cam = self.get_cam_image(layer_activations, layer_grads)
-            cam[cam < 0] = 0  # works like mute the min-max scale in the function of scale_cam_image
+            cam[cam < 0] = (
+                0  # works like mute the min-max scale in the function of scale_cam_image
+            )
             scaled = self.scale_cam_image(cam, target_size)
             cam_per_target_layer.append(scaled[:, None, :])
 
@@ -143,7 +143,7 @@ class GradCAM:
 
         self.model.zero_grad()
         loss = self.get_loss(output, target_list)
-        print('the loss is', loss)
+        print("the loss is", loss)
         loss.backward(retain_graph=True)
 
         cam_per_layer = self.compute_cam_per_layer(input_tensor)
@@ -160,5 +160,6 @@ class GradCAM:
         if isinstance(exc_value, IndexError):
             # Handle IndexError here...
             print(
-                f"An exception occurred in CAM with block: {exc_type}. Message: {exc_value}")
+                f"An exception occurred in CAM with block: {exc_type}. Message: {exc_value}"
+            )
             return True

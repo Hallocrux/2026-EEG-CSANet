@@ -1,30 +1,36 @@
-import numpy as np
-from torch.utils.data import TensorDataset
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data
-import torch.nn as nn
-import time
-import matplotlib.pyplot as plt
-import numpy as np
-import time
 
 
-def _rearrange(x, mode='to'):
-    if mode == 'to':  # to (B, L, C)
+def _rearrange(x, mode="to"):
+    if mode == "to":  # to (B, L, C)
         return x.transpose(-1, -2)  # [B, C, L] -> [B, L, C]
     else:  # to (B, C, L)
         return x.transpose(-1, -2)  # [B, L, C] -> [B, C, L]
 
 
 class MSC(nn.Module):
-    def __init__(self, dim, num_heads=8, topk=True, kernel=[3, 5, 7], s=[1, 1, 1], pad=[1, 2, 3],
-                 qkv_bias=False, qk_scale=None, attn_drop_ratio=0., proj_drop_ratio=0., k1=2, k2=3):
+    def __init__(
+        self,
+        dim,
+        num_heads=8,
+        topk=True,
+        kernel=[3, 5, 7],
+        s=[1, 1, 1],
+        pad=[1, 2, 3],
+        qkv_bias=False,
+        qk_scale=None,
+        attn_drop_ratio=0.0,
+        proj_drop_ratio=0.0,
+        k1=2,
+        k2=3,
+    ):
         super(MSC, self).__init__()
         self.num_heads = num_heads
         head_dim = dim // num_heads
-        self.scale = qk_scale or head_dim ** -0.5
+        self.scale = qk_scale or head_dim**-0.5
         self.q = nn.Linear(dim, dim, bias=qkv_bias)
         self.kv = nn.Linear(dim, dim * 2, bias=qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop_ratio)
@@ -49,31 +55,43 @@ class MSC(nn.Module):
         y3 = self.avgpool3(y)
         y = y1 + y2 + y3  # [B, C, L2]
 
-        y = _rearrange(y, 'to')  # [B, L2, C]
+        y = _rearrange(y, "to")  # [B, L2, C]
         y = self.layer_norm(y)
-        x = _rearrange(x, 'to')  # [B, L1, C]
+        x = _rearrange(x, "to")  # [B, L1, C]
 
         B, N1, C = y.shape
-        kv = self.kv(y).reshape(B, N1, 2, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+        kv = (
+            self.kv(y)
+            .reshape(B, N1, 2, self.num_heads, C // self.num_heads)
+            .permute(2, 0, 3, 1, 4)
+        )
         k, v = kv[0], kv[1]
         B, N, C = x.shape
-        q = self.q(x).reshape(B, N, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
+        q = (
+            self.q(x)
+            .reshape(B, N, self.num_heads, C // self.num_heads)
+            .permute(0, 2, 1, 3)
+        )
         attn = (q @ k.transpose(-2, -1)) * self.scale
 
         # --- Top-k 1 ---
         mask1 = torch.zeros(B, self.num_heads, N, N1, device=x.device)
-        topk_indices1 = torch.topk(attn, k=max(1, N1 // self.k1), dim=-1, largest=True).indices
-        mask1.scatter_(-1, topk_indices1, 1.)
-        attn1 = torch.where(mask1 > 0, attn, torch.full_like(attn, float('-inf')))
+        topk_indices1 = torch.topk(
+            attn, k=max(1, N1 // self.k1), dim=-1, largest=True
+        ).indices
+        mask1.scatter_(-1, topk_indices1, 1.0)
+        attn1 = torch.where(mask1 > 0, attn, torch.full_like(attn, float("-inf")))
         attn1 = attn1.softmax(dim=-1)
         attn1 = self.attn_drop(attn1)
         out1 = attn1 @ v
 
         # --- Top-k 2 ---
         mask2 = torch.zeros(B, self.num_heads, N, N1, device=x.device)
-        topk_indices2 = torch.topk(attn, k=max(1, N1 // self.k2), dim=-1, largest=True).indices
-        mask2.scatter_(-1, topk_indices2, 1.)
-        attn2 = torch.where(mask2 > 0, attn, torch.full_like(attn, float('-inf')))
+        topk_indices2 = torch.topk(
+            attn, k=max(1, N1 // self.k2), dim=-1, largest=True
+        ).indices
+        mask2.scatter_(-1, topk_indices2, 1.0)
+        attn2 = torch.where(mask2 > 0, attn, torch.full_like(attn, float("-inf")))
         attn2 = attn2.softmax(dim=-1)
         attn2 = self.attn_drop(attn2)
         out2 = attn2 @ v
@@ -82,17 +100,28 @@ class MSC(nn.Module):
         out = out.transpose(1, 2).reshape(B, N, C)
         out = self.proj(out)
         out = self.proj_drop(out)
-        out = _rearrange(out, 'from')
+        out = _rearrange(out, "from")
         return out
 
 
 class MSC_nok(nn.Module):
-    def __init__(self, dim, num_heads=8, topk=True, kernel=[3, 5, 7], s=[1, 1, 1], pad=[1, 2, 3],
-                 qkv_bias=False, qk_scale=None, attn_drop_ratio=0., proj_drop_ratio=0.):
+    def __init__(
+        self,
+        dim,
+        num_heads=8,
+        topk=True,
+        kernel=[3, 5, 7],
+        s=[1, 1, 1],
+        pad=[1, 2, 3],
+        qkv_bias=False,
+        qk_scale=None,
+        attn_drop_ratio=0.0,
+        proj_drop_ratio=0.0,
+    ):
         super(MSC_nok, self).__init__()
         self.num_heads = num_heads
         head_dim = dim // num_heads
-        self.scale = qk_scale or head_dim ** -0.5
+        self.scale = qk_scale or head_dim**-0.5
 
         self.q = nn.Linear(dim, dim, bias=qkv_bias)
         self.kv = nn.Linear(dim, dim * 2, bias=qkv_bias)
@@ -113,15 +142,23 @@ class MSC_nok(nn.Module):
         y3 = self.avgpool3(y)
         y = y1 + y2 + y3  # [B, C, L2]
 
-        y = _rearrange(y, 'to')  # [B, L2, C]
+        y = _rearrange(y, "to")  # [B, L2, C]
         y = self.layer_norm(y)
-        x = _rearrange(x, 'to')  # [B, L1, C]
+        x = _rearrange(x, "to")  # [B, L1, C]
 
         B, N1, C = y.shape
-        kv = self.kv(y).reshape(B, N1, 2, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+        kv = (
+            self.kv(y)
+            .reshape(B, N1, 2, self.num_heads, C // self.num_heads)
+            .permute(2, 0, 3, 1, 4)
+        )
         k, v = kv[0], kv[1]
         B, N, C = x.shape
-        q = self.q(x).reshape(B, N, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
+        q = (
+            self.q(x)
+            .reshape(B, N, self.num_heads, C // self.num_heads)
+            .permute(0, 2, 1, 3)
+        )
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
@@ -130,7 +167,7 @@ class MSC_nok(nn.Module):
 
         out = self.proj(out)
         out = self.proj_drop(out)
-        out = _rearrange(out, 'from')
+        out = _rearrange(out, "from")
         return out
 
 
@@ -138,8 +175,10 @@ class CausalConv1d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, dilation=1):
         super(CausalConv1d, self).__init__()
         self.padding = (kernel_size - 1) * dilation
-        self.conv1d = nn.Conv1d(in_channels, out_channels, kernel_size, dilation=dilation)
-        nn.init.kaiming_uniform_(self.conv1d.weight, nonlinearity='linear')
+        self.conv1d = nn.Conv1d(
+            in_channels, out_channels, kernel_size, dilation=dilation
+        )
+        nn.init.kaiming_uniform_(self.conv1d.weight, nonlinearity="linear")
 
     def forward(self, x):
         x = F.pad(x, (self.padding, 0))
@@ -190,21 +229,25 @@ class TCN_block(nn.Module):
 
 
 class conv_block1(nn.Module):
-    def __init__(self, ):
+    def __init__(
+        self,
+    ):
         super(conv_block1, self).__init__()
         self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=(1, 64), bias=False, padding='same'),
+            nn.Conv2d(1, 16, kernel_size=(1, 64), bias=False, padding="same"),
             nn.BatchNorm2d(16),
         )
         # TODO   Change "22" according to the channel_num  of the DATASET
-        self.depthwise = nn.Conv2d(16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False)
+        self.depthwise = nn.Conv2d(
+            16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False
+        )
         self.pointwise = nn.Conv2d(16, 16 * 2, 1, 1, 0, 1, 1, bias=False)
         self.conv_block_2 = nn.Sequential(
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.Dropout(0.5),
             nn.AvgPool2d(kernel_size=(1, 8)),
-            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding='same'),
+            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding="same"),
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.AvgPool2d(kernel_size=(1, 7)),
@@ -220,21 +263,25 @@ class conv_block1(nn.Module):
 
 
 class conv_block2(nn.Module):
-    def __init__(self, ):
+    def __init__(
+        self,
+    ):
         super(conv_block2, self).__init__()
         self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=(1, 32), bias=False, padding='same'),
+            nn.Conv2d(1, 16, kernel_size=(1, 32), bias=False, padding="same"),
             nn.BatchNorm2d(16),
         )
         # TODO   Change "22" according to the channel_num  of the DATASET
-        self.depthwise = nn.Conv2d(16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False)
+        self.depthwise = nn.Conv2d(
+            16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False
+        )
         self.pointwise = nn.Conv2d(16, 16 * 2, 1, 1, 0, 1, 1, bias=False)
         self.conv_block_2 = nn.Sequential(
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.Dropout(0.5),
             nn.AvgPool2d(kernel_size=(1, 8)),
-            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding='same'),
+            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding="same"),
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.AvgPool2d(kernel_size=(1, 7)),
@@ -250,21 +297,25 @@ class conv_block2(nn.Module):
 
 
 class conv_block3(nn.Module):
-    def __init__(self, ):
+    def __init__(
+        self,
+    ):
         super(conv_block3, self).__init__()
         self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=(1, 16), bias=False, padding='same'),
+            nn.Conv2d(1, 16, kernel_size=(1, 16), bias=False, padding="same"),
             nn.BatchNorm2d(16),
         )
         # TODO   Change "22" according to the channel_num  of the DATASET
-        self.depthwise = nn.Conv2d(16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False)
+        self.depthwise = nn.Conv2d(
+            16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False
+        )
         self.pointwise = nn.Conv2d(16, 16 * 2, 1, 1, 0, 1, 1, bias=False)
         self.conv_block_2 = nn.Sequential(
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.Dropout(0.5),
             nn.AvgPool2d(kernel_size=(1, 8)),
-            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding='same'),
+            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding="same"),
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.AvgPool2d(kernel_size=(1, 7)),
@@ -280,21 +331,25 @@ class conv_block3(nn.Module):
 
 
 class conv_block4(nn.Module):
-    def __init__(self, ):
+    def __init__(
+        self,
+    ):
         super(conv_block4, self).__init__()
         self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=(1, 8), bias=False, padding='same'),
+            nn.Conv2d(1, 16, kernel_size=(1, 8), bias=False, padding="same"),
             nn.BatchNorm2d(16),
         )
         # TODO   Change "22" according to the channel_num  of the DATASET
-        self.depthwise = nn.Conv2d(16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False)
+        self.depthwise = nn.Conv2d(
+            16, 16, (3, 1), stride=1, padding=0, dilation=1, groups=16, bias=False
+        )
         self.pointwise = nn.Conv2d(16, 16 * 2, 1, 1, 0, 1, 1, bias=False)
         self.conv_block_2 = nn.Sequential(
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.Dropout(0.5),
             nn.AvgPool2d(kernel_size=(1, 8)),
-            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding='same'),
+            nn.Conv2d(32, 32, kernel_size=(1, 16), bias=False, padding="same"),
             nn.BatchNorm2d(32),
             nn.ELU(),
             nn.AvgPool2d(kernel_size=(1, 7)),

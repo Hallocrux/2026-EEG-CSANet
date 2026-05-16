@@ -1,28 +1,26 @@
+import copy
+import os
+
 import numpy as np
 import torch
+from sklearn.metrics import accuracy_score, cohen_kappa_score
 from torch.utils.data import DataLoader
-from sklearn.metrics import confusion_matrix, accuracy_score, cohen_kappa_score
-import matplotlib.pyplot as plt
-import os
-import copy
-import itertools
-from mpl_toolkits.axes_grid1 import host_subplot
-from datetime import datetime
-import random
 
 
-class baseModel():
-    def __init__(self, net, config, optimizer, loss_func, scheduler=None, result_savepath=None):
-        self.batchsize = config['batch_size']
-        self.epochs = config['epochs']
-        self.preferred_device = config['preferred_device']
+class baseModel:
+    def __init__(
+        self, net, config, optimizer, loss_func, scheduler=None, result_savepath=None
+    ):
+        self.batchsize = config["batch_size"]
+        self.epochs = config["epochs"]
+        self.preferred_device = config["preferred_device"]
 
         # for data augmentation
-        self.num_classes = config['num_classes']
-        self.num_segs = config['num_segs']
+        self.num_classes = config["num_classes"]
+        self.num_segs = config["num_segs"]
 
         self.device = None
-        self.set_device(config['nGPU'])
+        self.set_device(config["nGPU"])
         self.net = net.to(self.device)
 
         # for training
@@ -34,13 +32,17 @@ class baseModel():
         self.result_savepath = result_savepath
         self.log_write = None
         if self.result_savepath is not None:
-            self.log_write = open(os.path.join(self.result_savepath, 'log_result.txt'), 'w')
+            self.log_write = open(
+                os.path.join(self.result_savepath, "log_result.txt"), "w"
+            )
 
     def set_device(self, nGPU):
-        if self.preferred_device == 'gpu':
-            self.device = torch.device('cuda:' + str(nGPU) if torch.cuda.is_available() else 'cpu')
+        if self.preferred_device == "gpu":
+            self.device = torch.device(
+                "cuda:" + str(nGPU) if torch.cuda.is_available() else "cpu"
+            )
         else:
-            self.device = torch.device('cpu')
+            self.device = torch.device("cpu")
         print("Code will be running on device ", self.device)
 
     # data: num_trials * channels * sample points
@@ -62,8 +64,9 @@ class baseModel():
             for i in range(aug_data_size):
                 rand_idx = np.random.randint(0, data_size, self.num_segs)
                 for j in range(self.num_segs):
-                    temp_aug_data[i, :, j * seg_size:(j + 1) * seg_size] = cls_data[rand_idx[j], :,
-                                                                           j * seg_size:(j + 1) * seg_size]
+                    temp_aug_data[i, :, j * seg_size : (j + 1) * seg_size] = cls_data[
+                        rand_idx[j], :, j * seg_size : (j + 1) * seg_size
+                    ]
             aug_data.append(temp_aug_data)
             aug_label.extend([cls] * aug_data_size)
 
@@ -83,8 +86,12 @@ class baseModel():
         return aug_data, aug_label
 
     def train_test(self, train_dataset, test_dataset):
-        train_dataloader = DataLoader(train_dataset, batch_size=self.batchsize, shuffle=True, num_workers=1)  # or num_workers=0? mabey faster
-        test_dataloader = DataLoader(test_dataset, batch_size=self.batchsize, num_workers=1)  # or num_workers=0? mabey faster
+        train_dataloader = DataLoader(
+            train_dataset, batch_size=self.batchsize, shuffle=True, num_workers=1
+        )  # or num_workers=0? mabey faster
+        test_dataloader = DataLoader(
+            test_dataset, batch_size=self.batchsize, num_workers=1
+        )  # or num_workers=0? mabey faster
 
         best_acc = 0
         avg_acc = 0
@@ -99,7 +106,9 @@ class baseModel():
             with torch.enable_grad():
                 for train_data, train_label in train_dataloader:
                     # data augmentation
-                    aug_data, aug_label = self.data_augmentation(train_data, train_label)
+                    aug_data, aug_label = self.data_augmentation(
+                        train_data, train_label
+                    )
 
                     train_data = torch.cat((train_data, aug_data), axis=0)
                     train_label = torch.cat((train_label, aug_label), axis=0)
@@ -160,19 +169,28 @@ class baseModel():
                 best_model = copy.deepcopy(self.net.state_dict())
 
             print(
-                'Epoch [%d] | Train Loss: %.6f  Train Accuracy: %.6f | Test Loss: %.6f  Test Accuracy: %.6f | lr: %.6f'
-                % (epoch + 1, train_loss, train_acc, test_loss, test_acc, self.optimizer.param_groups[0]['lr']))
+                "Epoch [%d] | Train Loss: %.6f  Train Accuracy: %.6f | Test Loss: %.6f  Test Accuracy: %.6f | lr: %.6f"
+                % (
+                    epoch + 1,
+                    train_loss,
+                    train_acc,
+                    test_loss,
+                    test_acc,
+                    self.optimizer.param_groups[0]["lr"],
+                )
+            )
             if self.log_write and epoch % 50 == 0:
                 self.log_write.write(
-                    f'Epoch [{epoch + 1}] | Train Loss: {train_loss:.6f}  Train Accuracy: {train_acc:.6f} | Test Loss: {test_loss:.6f} Test Accuracy: {test_acc:.6f} Test Kappa: {test_kappa:.6f} \n')
+                    f"Epoch [{epoch + 1}] | Train Loss: {train_loss:.6f}  Train Accuracy: {train_acc:.6f} | Test Loss: {test_loss:.6f} Test Accuracy: {test_acc:.6f} Test Kappa: {test_kappa:.6f} \n"
+                )
 
         avg_acc /= self.epochs
-        print('The average accuracy is: ', avg_acc)
-        print('The best accuracy is: ', best_acc)
+        print("The average accuracy is: ", avg_acc)
+        print("The best accuracy is: ", best_acc)
         if self.log_write:
-            self.log_write.write(f'The average accuracy is: {avg_acc:.6f}\n')
-            self.log_write.write(f'The best accuracy is: {best_acc:.6f}\n')
-            self.log_write.write(f'The best kappa is: {best_kappa:.6f}\n')
+            self.log_write.write(f"The average accuracy is: {avg_acc:.6f}\n")
+            self.log_write.write(f"The best accuracy is: {best_acc:.6f}\n")
+            self.log_write.write(f"The best kappa is: {best_kappa:.6f}\n")
             self.log_write.close()
 
-        torch.save(best_model, os.path.join(self.result_savepath, 'model.pth'))
+        torch.save(best_model, os.path.join(self.result_savepath, "model.pth"))

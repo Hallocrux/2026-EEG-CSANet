@@ -1,11 +1,8 @@
-import numpy as np
-import random
-import scipy.signal as signal
-import scipy.io as io
 import os
-import resampy
-from scipy.signal import butter, filtfilt
+import random
 
+import numpy as np
+from scipy.signal import butter, filtfilt
 
 # def load_BCI42_data(dataset_path, data_file):
 #     data_path = os.path.join(dataset_path, data_file + '_data.npy')
@@ -24,16 +21,18 @@ from scipy.signal import butter, filtfilt
 
 #     return data, label
 
+
 def preprocess_filt(data, low_cut=0.1, high_cut=40, fs=500, order=4):
     nyq = 0.5 * fs
     low = low_cut / nyq
     high = high_cut / nyq
-    b, a = butter(order, [low, high], btype='bandpass')
+    b, a = butter(order, [low, high], btype="bandpass")
     # 确保 padlen 是基于时间维度（最后一个）
     padlen = data.shape[-1] // 3
     # 指定滤波轴为 -1（即最后一个维度）
     proced = filtfilt(b, a, data, axis=-1, padlen=padlen)
     return proced
+
 
 def load_BCI42_data_train(dataset_path, data_file):
     data_path = os.path.join("/home/cxr/workspace/数据处理/邓憋尿训练train_data.npy")
@@ -44,18 +43,19 @@ def load_BCI42_data_train(dataset_path, data_file):
     label = np.load(label_path).squeeze()
     print(label)
 
-    print(data_file, 'load success')
+    print(data_file, "load success")
 
     for i in range(60):
         data[i] = preprocess_filt(data[i])
 
-    #Shuffle
+    # Shuffle
     data, label = shuffle_data(data, label)
 
-    print('Data shape: ', data.shape)
-    print('Label shape: ', label.shape)
+    print("Data shape: ", data.shape)
+    print("Label shape: ", label.shape)
 
     return data, label
+
 
 def load_BCI42_data_test(dataset_path, data_file):
     data_path = os.path.join("/home/cxr/workspace/数据处理/邓憋尿测试test_data.npy")
@@ -64,61 +64,63 @@ def load_BCI42_data_test(dataset_path, data_file):
     data = np.load(data_path)
     label = np.load(label_path).squeeze()
 
-    print(data_file, 'load success')
+    print(data_file, "load success")
 
     for i in range(20):
         data[i] = preprocess_filt(data[i])
 
-    #Shuffle
+    # Shuffle
     data, label = shuffle_data(data, label)
 
-    print('Data shape: ', data.shape)
-    print('Label shape: ', label.shape)
+    print("Data shape: ", data.shape)
+    print("Label shape: ", label.shape)
 
     return data, label
 
+
 def load_SEED_data(dataset_path, data_file):
-    data_path = os.path.join(dataset_path, data_file + '_data.npy')
-    label_path = os.path.join(dataset_path, data_file + '_labels.npy')
+    data_path = os.path.join(dataset_path, data_file + "_data.npy")
+    label_path = os.path.join(dataset_path, data_file + "_labels.npy")
 
     data = np.load(data_path)
-    segment = len(data)//3
-    data = data[segment:segment*2, :, :]
+    segment = len(data) // 3
+    data = data[segment : segment * 2, :, :]
 
     label = np.load(label_path) + 1
-    label = label[segment:segment*2,]
+    label = label[segment : segment * 2,]
 
-    print(data_file, 'load success')
+    print(data_file, "load success")
 
-    #Shuffle
+    # Shuffle
     data, label = shuffle_data(data, label)
 
-    print('Data shape: ', data.shape)
-    print('Label shape: ', label.shape)
+    print("Data shape: ", data.shape)
+    print("Label shape: ", label.shape)
 
     return data, label
 
 
 def load_SEED_5_fold(dataset_path, data_file):
-    data_path = os.path.join(dataset_path, data_file + '_data.npy')
-    label_path = os.path.join(dataset_path, data_file + '_labels.npy')
+    data_path = os.path.join(dataset_path, data_file + "_data.npy")
+    label_path = os.path.join(dataset_path, data_file + "_labels.npy")
 
     data = np.load(data_path)
-    segment = len(data)//3
-    data = data[segment:segment*2, :, :]
+    segment = len(data) // 3
+    data = data[segment : segment * 2, :, :]
 
     label = np.load(label_path) + 1
-    label = label[segment:segment*2,]
+    label = label[segment : segment * 2,]
 
-    print(data_file, 'load success')
+    print(data_file, "load success")
 
-    #Shuffle
+    # Shuffle
     data, label = shuffle_data(data, label)
 
-    print('Data shape: ', data.shape)
-    print('Label shape: ', label.shape)
+    print("Data shape: ", data.shape)
+    print("Label shape: ", label.shape)
 
     return data, label
+
 
 # import numpy as np
 #
@@ -193,6 +195,7 @@ def load_SEED_5_fold(dataset_path, data_file):
 # # print(test_data.shape)
 # # print(test_label.shape)
 
+
 def load_HGD_data(dataset_path, data_file, label_file):
     data = []
     label = []
@@ -202,15 +205,16 @@ def load_HGD_data(dataset_path, data_file, label_file):
     data = np.load(data_path)
     label = np.load(label_path).squeeze()
 
-    print(data_file, 'load success')
+    print(data_file, "load success")
 
-    #Shuffle
+    # Shuffle
     data, label = shuffle_data(data, label)
 
-    print('Data shape: ', data.shape)
-    print('Label shape: ', label.shape)
+    print("Data shape: ", data.shape)
+    print("Label shape: ", label.shape)
 
     return data, label
+
 
 def shuffle_data(data, label):
     index = [i for i in range(len(data))]

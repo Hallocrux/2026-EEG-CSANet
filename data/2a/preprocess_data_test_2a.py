@@ -1,40 +1,38 @@
-import mne
-from mne import event
-from mne import epochs
-from mne import label
-from mne.io.fiff import raw
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.io
 import os
-import time
+
+import mne
+import numpy as np
+import scipy.io
+from mne import event, label
 
 factor_new = 1e-3
 init_block_size = 1000
 
-data_path = 'E:/Dataset/BCI_Competition_IV/Datasets2a'
-data_files = ['A0'+str(i)+'E.gdf' for i in range(1, 10)]
+data_path = "E:/Dataset/BCI_Competition_IV/Datasets2a"
+data_files = ["A0" + str(i) + "E.gdf" for i in range(1, 10)]
 
-label_path = 'E:/Dataset/BCI_Competition_IV/True_Labels/Datasets2a'
-label_files = ['A0'+str(i)+'E.mat' for i in range(1, 10)]
+label_path = "E:/Dataset/BCI_Competition_IV/True_Labels/Datasets2a"
+label_files = ["A0" + str(i) + "E.mat" for i in range(1, 10)]
 
-save_path = 'dataset/bci_iv_2a'
+save_path = "dataset/bci_iv_2a"
 
-event_description = {'783':"CueUnknown"}
+event_description = {"783": "CueUnknown"}
 
 for file in data_files:
-    raw_data = mne.io.read_raw_gdf(os.path.join(data_path, file), preload=True, verbose=False)
+    raw_data = mne.io.read_raw_gdf(
+        os.path.join(data_path, file), preload=True, verbose=False
+    )
 
     # print(raw_data)
 
     raw_events, all_event_id = mne.events_from_annotations(raw_data)
     # print(raw_events)
 
-    raw_data = mne.io.RawArray(raw_data.get_data()*1e6, raw_data.info)
+    raw_data = mne.io.RawArray(raw_data.get_data() * 1e6, raw_data.info)
 
-    raw_data.info['bads'] += ['EOG-left', 'EOG-central', 'EOG-right']
+    raw_data.info["bads"] += ["EOG-left", "EOG-central", "EOG-right"]
 
-    test_picks = mne.pick_types(raw_data.info, eeg=True, exclude='bads')
+    test_picks = mne.pick_types(raw_data.info, eeg=True, exclude="bads")
 
     tmin, tmax = 0, 4
 
@@ -45,18 +43,27 @@ for file in data_files:
         if event in event_description:
             event_id[event] = all_event_id[event]
 
-    raw_epochs = mne.Epochs(raw_data, raw_events, event_id, tmin, tmax, proj=True, picks=test_picks, baseline=None, preload=True)
+    raw_epochs = mne.Epochs(
+        raw_data,
+        raw_events,
+        event_id,
+        tmin,
+        tmax,
+        proj=True,
+        picks=test_picks,
+        baseline=None,
+        preload=True,
+    )
 
     # print(test_epochs)
 
-    data = raw_epochs.get_data() # [n_epochs, n_channels, n_times]
+    data = raw_epochs.get_data()  # [n_epochs, n_channels, n_times]
     # print(data.shape)
     data = data[:, :, :-1]
 
-    np.save(os.path.join(save_path, file[:-4]+'_data.npy'), data)
+    np.save(os.path.join(save_path, file[:-4] + "_data.npy"), data)
 
 for file in label_files:
     true_label = scipy.io.loadmat(os.path.join(label_path, file))
-    label = true_label['classlabel']
-    np.save(os.path.join(save_path, file[:-4]+'_label.npy'), label)
-
+    label = true_label["classlabel"]
+    np.save(os.path.join(save_path, file[:-4] + "_label.npy"), label)
